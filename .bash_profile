@@ -1,3 +1,9 @@
+export HISTSIZE=2000
+export HISTFILESIZE=4000
+shopt -s histappend
+
+source ~/git-completion.bash
+
 export PATH=$PATH:/opt/local/bin
 export MANPATH=$MANPATH:/opt/local/share/man
 export INFOPATH=$INFOPATH:/opt/local/share/info
@@ -23,5 +29,23 @@ yellow="\[\033[33m\]"
 white_bold="\[\033[1;37m\]"
 white="\[\033[37m\]"
 
+function timer_start {
+  timer=${timer:-$SECONDS}
+}
+
+function timer_stop {
+  timer_show=$(($SECONDS - $timer))
+  timer_display="(${timer_show}s)"
+  if [ ${timer_show} = 0 ]; then
+    timer_display="";
+  fi
+  unset timer
+}
+
+trap 'timer_start' DEBUG
+PROMPT_COMMAND=timer_stop
+
+PS1='[last: ${timer_show}s][\w]$ '
+
 # PS1="${reset_color}[${cyan}\A${reset_color}]${reset_color}${user_color}\u@\h(\l)${white}:${blue}\W${reset_color}[${yellow}\$?${reset_color}]${white}"'\$'"${reset_color} "
-export PS1="${white}[\A]${green}\u@\h${white}:${cyan}\W\`if [ \$? = 0 ]; then echo -e '${reset_color}\$'; else echo -e '${red}\$'; fi\`${reset_color} "
+export PS1="${white}[\A]${green}\h${white}:${cyan}\W${white}\${timer_display}\`if [ \$? = 0 ]; then echo -e '${reset_color}\$'; else echo -e '${red}\$'; fi\`${reset_color} "
